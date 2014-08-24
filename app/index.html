@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-touch-fullscreen" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        <meta name="title" content="Ruler" />
+        <meta name="description" content="Ruler" />
+        <link rel="image_src" href="" />
+
+        <title>Ruler</title>
+
+        <!-- build:css(.tmp) styles/main.css -->
+        <link rel="stylesheet" href="styles/reset.css">
+        <link rel="stylesheet" href="styles/app.css">
+        <!-- endbuild -->
+    </head>
+    <body>
+
+        <div class="plouf" style="position:absolute; top: 0px; left: 100px; width: 100px; height: 50px;background-color: blue;">
+          HELLO
+        </div>
+
+        <!-- build:js scripts/vendors.js -->
+        <!-- bower:js -->
+        <script src="vendors/jquery/jquery.js"></script>
+        <!-- endbower -->
+        <!-- endbuild -->
+        <!-- build:js(.tmp) scripts/main.js -->
+        <script src="scripts/config.js"></script>
+        <script src="scripts/app.js"></script>
+        <!-- endbuild -->
+
+        <script>
+          var app = new Ruler.App('body');
+        </script>
+
+    </body>
+</html>

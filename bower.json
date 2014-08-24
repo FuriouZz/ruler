@@ -1,0 +1,19 @@
+{
+  "name": "Ruler",
+  "version": "0.0.1",
+  "authors": [
+    "Christophe Massolin <christophe.massolin@gmail.com>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~1.10.2"
+  }
+}

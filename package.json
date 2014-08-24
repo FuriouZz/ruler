@@ -1,0 +1,27 @@
+{
+  "name": "ruler",
+  "version": "0.0.1",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-copy": "~0.4.1",
+    "grunt-contrib-watch": "~0.4.4",
+    "grunt-contrib-sass": "~0.5.0",
+    "grunt-contrib-livereload": "~0.1.2",
+    "grunt-contrib-connect": "~0.5.0",
+    "grunt-contrib-stylus" : "~0.17.0",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-uglify": "~0.2.0",
+    "grunt-contrib-cssmin": "~0.7.0",
+    "grunt-relative-root": "~0.2.1",
+    "grunt-autoprefixer": "~0.6.4",
+    "grunt-concurrent": "0.4.3",
+    "grunt-notify": "~0.2.4",
+    "grunt-bower-install": "0.8.0",
+    "grunt-rev": "~0.1.0",
+    "grunt-usemin": "~2.3.0",
+    "grunt-bower-task": "~0.3.4",
+    "grunt-shell": "~0.6.4",
+    "grunt-newer": "~0.7.0"
+  }
+}
