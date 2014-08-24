@@ -1,5 +1,4 @@
 # Ruler
-==============
 
 Reproduction of Photoshop guides & rules
 
