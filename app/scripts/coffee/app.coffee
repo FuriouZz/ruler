@@ -6,6 +6,8 @@ class Ruler.App
   current: null
   press: false
 
+  generator: null
+
   constructor: (selector)->
     @_initialize()
     @_events()
@@ -22,6 +24,31 @@ class Ruler.App
 
     @restoreGuides()
 
+    @generator =
+      columnCount: 5
+      rowCount: 5
+      columnWidth: 10
+      rowHeight: 10
+
+  generate: ->
+    winwidth  = window.innerWidth
+    winheight = window.innerHeight
+
+    generateGuides = (direction, count, width)=>
+      i = 0
+      while i < count
+        if width > 0
+          position = i * width
+        else
+          position = i / count * winwidth
+        @createGuide(direction, position + 16)
+        i++
+
+    generateGuides('vertical',   @generator.columnCount, @generator.columnWidth)
+    generateGuides('horizontal', @generator.rowCount,    @generator.rowHeight)
+
+    @save()
+
   _events: ->
     $(window).on('resize', @calculate)
 
@@ -35,6 +62,14 @@ class Ruler.App
     for guide in guides
       position = if guide.direction == 'vertical' then guide.position.left else guide.position.top
       @createGuide(guide.direction, position)
+
+  clearGuides: ->
+    guides = document.querySelectorAll('#ruler .guide')
+    for guide in guides
+      guide.remove()
+
+      @save()
+    return
 
   save: ->
     if window.localStorage
