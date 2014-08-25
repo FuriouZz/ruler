@@ -18,8 +18,59 @@ class Ruler.App
   _initialize: ->
     ruler           = document.createElement('div')
     ruler.id        = 'ruler'
-    ruler.innerHTML = '<span></span><ul class="rule horizontal"></ul><ul class="rule vertical"></ul>'
-    ruler.innerHTML += '<div class="infos"></div>'
+
+    # HTML
+    html = '<span></span><ul class="rule horizontal"></ul><ul class="rule vertical"></ul>
+      <div class="infos"></div>'
+
+    # Options
+    html += """
+    <div class="options">
+      <h1>Ruler</h1>
+
+      <div class="general">
+        <h2>Options</h2>
+        <p>
+          <label for="precision">Precision</label>
+          <input type="text" name="precision" id="precision" value="5">
+        </p>
+        <div class="clear"></div>
+        <p style="margin-top: 15px">
+          <label for="save_guides">Save guides</label>
+          <input type="checkbox" name="save_guides" id="save_guides">
+        </p>
+        <div class="clear"></div>
+        <p><button data-target="general">Apply</button></p>
+        <div class="clear"></div>
+      </div>
+
+      <div class="generator">
+        <h2>Guide generator</h2>
+        <p>
+          <label for="column_count">Column count</label>
+          <input type="text" name="column_count" id="column_count">
+        </p>
+        <p>
+          <label for="column_width">Column width</label>
+          <input type="text" name="column_width" id="column_width">
+        </p>
+        <p>
+          <label for="row_count">Row count</label>
+          <input type="text" name="row_count" id="row_count">
+        </p>
+        <p>
+          <label for="row_height">Row height</label>
+          <input type="text" name="row_height" id="row_height">
+        </p>
+        <div class="clear"></div>
+        <p><button data-target="generator">Generate</button></p>
+        <div class="clear"></div>
+      </div>
+    </div>
+    """
+
+    ruler.innerHTML = html
+
     document.querySelector('body').appendChild(ruler)
 
     @restoreGuides()
@@ -29,6 +80,22 @@ class Ruler.App
       rowCount: 5
       columnWidth: 10
       rowHeight: 10
+
+  applyOptions: (optionName)->
+    if optionName == 'general'
+      precision   = document.querySelector('#ruler .general #precision').value
+      save_guides = document.querySelector('#ruler .general #save_guides').checked
+
+      @setPrecision(precision)
+
+    if optionName == 'generator'
+      @generator =
+        columnCount: document.querySelector('#ruler .generator #column_count').value
+        columnWidth: document.querySelector('#ruler .generator #column_width').value
+        rowCount:    document.querySelector('#ruler .generator #row_count').value
+        rowHeight:   document.querySelector('#ruler .generator #row_height').value
+
+      @generate()
 
   generate: ->
     winwidth  = window.innerWidth
@@ -51,6 +118,12 @@ class Ruler.App
 
   _events: ->
     $(window).on('resize', @calculate)
+
+    $(document).on('click', '#ruler .options button', (e)=>
+      e.preventDefault()
+
+      @applyOptions(e.target.getAttribute('data-target'))
+    )
 
     document.querySelector('#ruler').addEventListener('mouseup', @eMouseUp)
     document.querySelector('#ruler').addEventListener('mousedown', @eMouseDown)

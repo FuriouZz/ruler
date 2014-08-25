@@ -8,6 +8,9 @@
     height: 100%
     width: 100%
 
+    .clear
+        clear: both
+
     span
         width: 18px
         height: 18px
@@ -66,6 +69,39 @@
 
             &:hover
                 cursor: row-resize
+
+    .options
+        position: absolute
+        top: 50px
+        left: 50px
+        width: 350px
+        height: 500px
+        background-color: #EEE
+        font-size: 12px
+        padding: 20px
+
+        h1
+            text-align: center
+            font-size: 18px
+            font-weight: bold
+        h2
+            font-size: 14px
+            font-weight: bold
+            margin: 15px 0px
+
+        label
+            display: inline-block
+            width: 90px
+            text-align: right
+            padding-right: 10px
+
+        p
+            float: left
+
+        input[type="number"], input[type="text"]
+            width: 50px
+            text-align: center
+
 .rule
     position: absolute
     z-index: 1
