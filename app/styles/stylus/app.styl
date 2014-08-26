@@ -70,37 +70,108 @@
             &:hover
                 cursor: row-resize
 
-    .options
+    .panel
         position: absolute
         top: 50px
         left: 50px
-        width: 350px
-        height: 500px
-        background-color: #EEE
+        width: 150px
+        background-color: #454545
         font-size: 12px
-        padding: 20px
+        padding: 12px
+        color: #c5c5c5
+        font-family: 'Trebuchet MS'
+        -webkit-font-smoothing: antialiased
 
         h1
             text-align: center
-            font-size: 18px
+            font-size: 30px
             font-weight: bold
+            text-shadow: #2e2e2e 1px 1px
         h2
             font-size: 14px
             font-weight: bold
             margin: 15px 0px
+        h3
+            font-size: 10px
+            font-weight: bold
+            margin: 15px 0px
 
         label
-            display: inline-block
-            width: 90px
-            text-align: right
-            padding-right: 10px
+            display: block
+            text-align: left
+            margin-bottom: 5px
 
-        p
+        .block
             float: left
+            margin: 5px 0px
 
-        input[type="number"], input[type="text"]
-            width: 50px
+            &:nth-child(even)
+                margin-right: 20px
+
+        input[type="number"], input[type="text"], .toggle
+            -webkit-font-smoothing: antialiased
+            width: 61px
+            height: 23px
+            font-size: 12px
+            color: #e3e3e3
             text-align: center
+            background-color: #929292
+            border: 1px #b4b4b4 solid
+            border-radius: 1px
+            // box-shadow: 0px 0px 0px .125em #1b1b1b
+
+        button
+            width: 100%
+            height: 25px
+            border: 1px #a2becb solid
+            // box-shadow: 0px 0px 0px .125em #637983
+            background-color: #879ca6
+            color: #e3e3e3
+            font-size: 10px
+            text-transform: uppercase
+            margin-top: 5px
+
+        .toggle
+            position: relative
+
+            .cursor
+                position: absolute
+                top: 0
+                left: 0
+                width: 50%
+                height: 100%
+                background-color: #c04040
+                border: #a42727
+                transition: left, background-color, border
+                transition-duration: 250ms
+                cursor: pointer
+
+            &.on .cursor
+                left: 50%
+                background-color: #76ac56
+                border: #a1cf85
+
+            &.off .cursor
+                left: 0%
+                background-color: #c04040
+                border: #a42727
+            .actions
+                position: relative
+                z-index: 1
+                width: 100%
+                height: 100%
+
+            span
+                cursor: pointer
+                position: inherit
+                display: inline-block
+                width: 50%
+                height: 100%
+                float: left
+                text-align: center
+                line-height: 2.4em
+                font-size: 10px
+                background-color: transparent
 
 .rule
     position: absolute

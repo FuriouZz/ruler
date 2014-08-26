@@ -20,52 +20,63 @@ class Ruler.App
     ruler.id        = 'ruler'
 
     # HTML
-    html = '<span></span><ul class="rule horizontal"></ul><ul class="rule vertical"></ul>
-      <div class="infos"></div>'
+    html = """
+      <span></span>
+      <ul class="rule horizontal"></ul>
+      <ul class="rule vertical"></ul>
+      <div class="infos"></div>
+    """
 
     # Options
     html += """
-    <div class="options">
+    <div class="panel">
       <h1>Ruler</h1>
 
-      <div class="general">
+      <form action="" class="options">
         <h2>Options</h2>
-        <p>
+        <div class="block">
           <label for="precision">Precision</label>
           <input type="text" name="precision" id="precision" value="5">
-        </p>
-        <div class="clear"></div>
-        <p style="margin-top: 15px">
+        </div>
+        <div class="block">
           <label for="save_guides">Save guides</label>
-          <input type="checkbox" name="save_guides" id="save_guides">
-        </p>
+          <input type="checkbox" name="save_guides" id="save_guides" style="display:none;">
+          <div id="save_guides" class="toggle off">
+            <div class="cursor"></div>
+            <div class="actions">
+              <span class="off">OFF</span>
+              <span class="on">ON</span>
+              <div class="clear"></div>
+            </div>
+          </div>
+        </div>
         <div class="clear"></div>
-        <p><button data-target="general">Apply</button></p>
+        <button data-target="general">Apply</button>
         <div class="clear"></div>
-      </div>
+      </form>
 
-      <div class="generator">
+      <form action="" class="generator">
         <h2>Guide generator</h2>
-        <p>
-          <label for="column_count">Column count</label>
+        <div class="block">
+          <label for="column_count">Col. count</label>
           <input type="text" name="column_count" id="column_count">
-        </p>
-        <p>
-          <label for="column_width">Column width</label>
-          <input type="text" name="column_width" id="column_width">
-        </p>
-        <p>
+        </div>
+        <div class="block">
           <label for="row_count">Row count</label>
           <input type="text" name="row_count" id="row_count">
-        </p>
-        <p>
+        </div>
+        <div class="block">
+          <label for="column_width">Col. width</label>
+          <input type="text" name="column_width" id="column_width">
+        </div>
+        <div class="block">
           <label for="row_height">Row height</label>
           <input type="text" name="row_height" id="row_height">
-        </p>
+        </div>
         <div class="clear"></div>
-        <p><button data-target="generator">Generate</button></p>
-        <div class="clear"></div>
-      </div>
+        <button data-target="generator">Generate</button>
+        <button data-target="clear_guides">Clear guides</button>
+      </form>
     </div>
     """
 
@@ -83,8 +94,8 @@ class Ruler.App
 
   applyOptions: (optionName)->
     if optionName == 'general'
-      precision   = document.querySelector('#ruler .general #precision').value
-      save_guides = document.querySelector('#ruler .general #save_guides').checked
+      precision   = document.querySelector('#ruler .options #precision').value
+      save_guides = document.querySelector('#ruler .options #save_guides').checked
 
       @setPrecision(precision)
 
@@ -96,6 +107,9 @@ class Ruler.App
         rowHeight:   document.querySelector('#ruler .generator #row_height').value
 
       @generate()
+
+    if optionName == 'clear_guides'
+      @clearGuides()
 
   generate: ->
     winwidth  = window.innerWidth
@@ -119,10 +133,16 @@ class Ruler.App
   _events: ->
     $(window).on('resize', @calculate)
 
-    $(document).on('click', '#ruler .options button', (e)=>
+    $(document).on('click', '#ruler .panel button', (e)=>
+      e.preventDefault()
+      @applyOptions(e.target.getAttribute('data-target'))
+    )
+
+    $(document).on('click', '#ruler .panel .toggle', (e)->
       e.preventDefault()
 
-      @applyOptions(e.target.getAttribute('data-target'))
+      $(this).toggleClass('on off')
+      $(this).find('input').click()
     )
 
     document.querySelector('#ruler').addEventListener('mouseup', @eMouseUp)
