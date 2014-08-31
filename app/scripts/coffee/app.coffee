@@ -1,23 +1,116 @@
 class Ruler.App
 
-  precision: 5
   selector: null
+
+  precision: 5
+  enableSaveGuides: true
+
+  guides: null
 
   current: null
   press: false
 
-  generator: null
+  options: null
 
+
+  # Setup
   constructor: (selector)->
+    @setSelector(selector)
     @_initialize()
     @_events()
 
-    @setElement(selector)
     @calculate()
 
   _initialize: ->
+    @restore()
+
+  #######################
+  ##  EVENTS
+  #######################
+  _events: ->
+    $(window).on('resize', @calculate)
+
+    $(document).on('click', '#ruler .panel button', (e)=>
+      e.preventDefault()
+      @applyOptions(e.target.getAttribute('data-target'))
+    )
+
+    $(document).on('click', '#ruler .panel .toggle', (e)->
+      e.preventDefault()
+
+      $(this).toggleClass('on off')
+      $(this).find('input').click()
+    )
+
+    document.querySelector('#ruler').addEventListener('mouseup', @eMouseUp)
+    document.querySelector('#ruler').addEventListener('mousedown', @eMouseDown)
+    document.querySelector('#ruler').addEventListener('mousemove', @eMouseMove)
+
+  eDblclick: (e)=>
+    target = if /guide/.test(e.target.className) then e.target else e.target.parentNode
+    @removeGuide(target)
+
+  eMouseUp: (e)=>
+    if @press and @current != null
+      document.querySelector('#ruler').style.cursor = 'inherit'
+      document.querySelector('.infos').classList.add('hidden')
+      @current = null
+      @press   = false
+
+      @save()
+
+  eMouseDown: (e)=>
+    # If the target is a rule, enable move
+    unless /rule/.test(e.target.className)
+      target = if /guide/.test(e.target.className) then e.target else e.target.parentNode
+
+      if /guide/.test(target.className)
+        @current = target
+        @press   = true
+      return
+
+    # Else get direction and position, then create a guide
+    direction = if /vertical/.test(e.target.className) then 'vertical' else 'horizontal'
+    position  = if /vertical/.test(e.target.className) then e.clientX  else e.clientY
+
+    @current  = @createGuide(direction, position)
+    @press    = true
+
+  eMouseMove: (e)=>
+    document.querySelector('.horizontal .indicator').style.left = Math.max((e.clientX - 17), 0)+'px'
+    document.querySelector('.vertical .indicator').style.top    = Math.max((e.clientY - 17), 0)+'px'
+
+    if @press and @current != null
+      document.querySelector('.infos').innerHTML = ''
+
+      position = 0
+      if /vertical/.test(@current.className)
+        position = e.clientX+'px'
+        @current.style.left = position
+      else
+        position = e.clientY+'px'
+        @current.style.top  = position
+
+      document.querySelector('.infos').classList.remove('hidden')
+      document.querySelector('.infos').innerHTML  = (parseInt(position) - 16)+'px'
+      document.querySelector('.infos').style.top  = e.clientY+'px'
+      document.querySelector('.infos').style.left = e.clientX+'px'
+    else
+      document.querySelector('.infos').classList.add('hidden')
+
+  #######################
+  ##  SETTERS
+  #######################
+  setSelector: (selector)->
+    @selector = selector
+
+    rect = document.querySelector(@selector).getBoundingClientRect()
+
     ruler           = document.createElement('div')
     ruler.id        = 'ruler'
+    ruler.style.position = 'fixed'
+    ruler.style.top      = rect.top + 'px'
+    ruler.style.left     = rect.left + 'px'
 
     # HTML
     html = """
@@ -84,155 +177,25 @@ class Ruler.App
 
     document.querySelector('body').appendChild(ruler)
 
-    @restoreGuides()
-
-    @generator =
-      columnCount: 5
-      rowCount: 5
-      columnWidth: 10
-      rowHeight: 10
-
-  applyOptions: (optionName)->
-    if optionName == 'general'
-      precision   = document.querySelector('#ruler .options #precision').value
-      save_guides = document.querySelector('#ruler .options #save_guides').checked
-
-      @setPrecision(precision)
-
-    if optionName == 'generator'
-      @generator =
-        columnCount: document.querySelector('#ruler .generator #column_count').value
-        columnWidth: document.querySelector('#ruler .generator #column_width').value
-        rowCount:    document.querySelector('#ruler .generator #row_count').value
-        rowHeight:   document.querySelector('#ruler .generator #row_height').value
-
-      @generate()
-
-    if optionName == 'clear_guides'
-      @clearGuides()
-
-  generate: ->
-    winwidth  = window.innerWidth
-    winheight = window.innerHeight
-
-    generateGuides = (direction, count, width)=>
-      i = 0
-      while i < count
-        if width > 0
-          position = i * width
-        else
-          position = i / count * winwidth
-        @createGuide(direction, position + 16)
-        i++
-
-    generateGuides('vertical',   @generator.columnCount, @generator.columnWidth)
-    generateGuides('horizontal', @generator.rowCount,    @generator.rowHeight)
-
-    @save()
-
-  _events: ->
-    $(window).on('resize', @calculate)
-
-    $(document).on('click', '#ruler .panel button', (e)=>
-      e.preventDefault()
-      @applyOptions(e.target.getAttribute('data-target'))
-    )
-
-    $(document).on('click', '#ruler .panel .toggle', (e)->
-      e.preventDefault()
-
-      $(this).toggleClass('on off')
-      $(this).find('input').click()
-    )
-
-    document.querySelector('#ruler').addEventListener('mouseup', @eMouseUp)
-    document.querySelector('#ruler').addEventListener('mousedown', @eMouseDown)
-    document.querySelector('#ruler').addEventListener('mousemove', @eMouseMove)
-
-  restoreGuides: ->
-    guides = JSON.parse(window.localStorage.getItem('ruler'))
-    unless guides then return
-    for guide in guides
-      position = if guide.direction == 'vertical' then guide.position.left else guide.position.top
-      @createGuide(guide.direction, position)
-
-  clearGuides: ->
-    guides = document.querySelectorAll('#ruler .guide')
-    for guide in guides
-      guide.remove()
-
-      @save()
-    return
-
-  save: ->
-    if window.localStorage
-      data = '['
-
-      guides = document.querySelectorAll('#ruler .guide')
-      for guide in guides
-        data += '{"position":{"top":"'+parseInt(guide.style.top)+'", "left":"'+parseInt(guide.style.left)+'"},'
-        data += '"direction":"'+guide.className.split('guide ')[1]+'"},'
-
-      data = data.substr(0, data.length-1)
-      data += ']'
-
-      if guides.length
-        window.localStorage.setItem('ruler', data)
-      else
-        window.localStorage.removeItem('ruler')
-
-  eDblclick: (e)=>
-    target = if /guide/.test(e.target.className) then e.target else e.target.parentNode
-    target.remove()
-    @save()
-
-  eMouseUp: (e)=>
-    document.querySelector('#ruler').style.cursor = 'inherit'
-    document.querySelector('.infos').classList.add('hidden')
-    @current = null
-    @press   = false
-
-    @save()
-
-  eMouseDown: (e)=>
-    # If the target is a rule, enable move
-    unless /rule/.test(e.target.className)
-      target = if /guide/.test(e.target.className) then e.target else e.target.parentNode
-
-      if /guide/.test(target.className)
-        @current = target
-        @press   = true
-      return
-
-    # Else get direction and position, then create a guide
-    direction = if /vertical/.test(e.target.className) then 'vertical' else 'horizontal'
-    position  = if /vertical/.test(e.target.className) then e.clientX  else e.clientY
-
-    @current  = @createGuide(direction, position)
-    @press    = true
-
-  eMouseMove: (e)=>
-    document.querySelector('.horizontal .indicator').style.left = Math.max((e.clientX - 17), 0)+'px'
-    document.querySelector('.vertical .indicator').style.top    = Math.max((e.clientY - 17), 0)+'px'
-
-    if @press and @current != null
-      document.querySelector('.infos').innerHTML = ''
-
-      position = 0
-      if /vertical/.test(@current.className)
-        position = e.clientX+'px'
-        @current.style.left = position
-      else
-        position = e.clientY+'px'
-        @current.style.top  = position
-
-      document.querySelector('.infos').classList.remove('hidden')
-      document.querySelector('.infos').innerHTML  = (parseInt(position) - 16)+'px'
-      document.querySelector('.infos').style.top  = e.clientY+'px'
-      document.querySelector('.infos').style.left = e.clientX+'px'
+    if @selector == 'body'
+      document.querySelector('body').style.position   = 'absolute'
+      document.querySelector('body').style.top        = '18px'
+      document.querySelector('body').style.left       = '18px'
     else
-      document.querySelector('.infos').classList.add('hidden')
+      document.querySelector(@selector).style.marginTop = '18px'
+      document.querySelector(@selector).style.marginLeft = '18px'
 
+  setPrecision: (precision)->
+    @precision = precision
+    @calculate()
+
+  setEnableSaveGuides: (enable)->
+    @enableSaveGuides = enable
+    @save()
+
+  #######################
+  ##  GUIDES
+  #######################
   createGuide: (direction, position)->
     div = document.createElement('div')
     div.innerHTML = '<div></div>'
@@ -248,36 +211,80 @@ class Ruler.App
       document.querySelector('#ruler').style.cursor = 'row-resize'
 
     document.querySelector('#ruler').appendChild(div)
+    @save()
 
     # Reset dblclick event
-    guides = document.querySelectorAll('#ruler .guide')
-    for guide in guides
+    for guide in @guides
       guide.removeEventListener('dblclick', null)
       guide.addEventListener('dblclick', @eDblclick)
 
     return div
 
-  setElement: (selector)->
-    @selector = selector
+  removeGuide: (guide)->
+    @guides.pop(guide)
+    guide.remove()
+    @save()
 
-    rect = document.querySelector(selector).getBoundingClientRect()
+  clearGuides: ->
+    for guide in document.querySelectorAll('#ruler .guide')
+      @removeGuide(guide)
 
-    document.querySelector('#ruler').style.position = 'fixed'
-    document.querySelector('#ruler').style.top  = rect.top + 'px'
-    document.querySelector('#ruler').style.left = rect.left + 'px'
+  _prepareGuides: ->
+    # data = '['
+    guides = []
 
-    document.querySelector('body').style.position = 'absolute'
-    document.querySelector('body').style.top = '18px'
-    document.querySelector('body').style.left = '18px'
+    for guide in document.querySelectorAll('#ruler .guide')
+      g =
+        direction: guide.className.split('guide ')[1]
+        position:
+          top: parseInt(guide.style.top)
+          left: parseInt(guide.style.left)
 
-  setPrecision: (precision)->
-    @precision = precision
-    @calculate()
+      guides.push(g)
+      # data += JSON.stringify(d)
 
+    # data = data.substr(0, data.length-1)
+    # data += ']'
+
+    # object = JSON.parse(window.localStorage.getItem('ruler'))
+    # object.data.guides = data
+    # window.localStorage.setItem('ruler', JSON.stringify(object))
+
+    return guides
+
+
+  restoreGuides: (guides)->
+    unless guides.length == 0 then return
+    for guide in guides
+      position = if guide.direction == 'vertical' then guide.position.left else guide.position.top
+      @createGuide(guide.direction, position)
+
+  generateGuidesWithOptions: (options)->
+    winwidth  = window.innerWidth
+    winheight = window.innerHeight
+
+    generate = (direction, count, width)=>
+      i = 0
+      while i < count
+        if width > 0
+          position = i * width
+        else
+          position = i / count * winwidth
+        @createGuide(direction, position + 16)
+        i++
+
+    generate('vertical',   options.columnCount, options.columnWidth)
+    generate('horizontal', options.rowCount,    options.rowHeight)
+
+
+  #######################
+  ##  RULERS
+  #######################
   calculate: =>
     document.querySelector('.horizontal').innerHTML = ''
     document.querySelector('.vertical').innerHTML   = ''
 
+    console.log(@selector)
     rect = document.querySelector(@selector).getBoundingClientRect()
 
     if @selector != 'body'
@@ -349,3 +356,79 @@ class Ruler.App
     document.querySelector('.vertical').style.height  = height + 'px'
 
     return
+
+  #######################
+  ##  SAVEDATA
+  #######################
+  createSaveData: ->
+    saveData =
+      options:
+        precision: @precision
+        enableSaveGuides: @enableSaveGuides
+      data:
+        guides: []
+
+    window.localStorage.setItem('ruler', JSON.stringify(saveData))
+    return saveData
+
+  restore: ->
+    saveData = JSON.parse(window.localStorage.getItem('ruler'))
+    @setPrecision(saveData.options.precision)
+    @setEnableSaveGuides(saveData.options.enableSaveGuides)
+    @restoreGuides(saveData.data.guides)
+
+  _prepareData: ->
+    data = {}
+    data.guides  = if @enableSaveGuides then @_prepareGuides() else []
+    return data
+
+  save: ->
+    console.log('PREPARE TO SAVE')
+
+    @ready = false
+    clearTimeout(@test)
+    @test  = setTimeout(()=>
+      @ready = true
+    , 250)
+
+    clearTimeout(@timer)
+    @timer = setTimeout(()=>
+      if @ready
+        console.log('SAVE')
+        data    = @_prepareData()
+        options = @_prepareOptions()
+
+        object         = JSON.parse(window.localStorage.getItem('ruler'))
+        object.data    = data
+        object.options = options
+        window.localStorage.setItem('ruler', JSON.stringify(object))
+      else
+        @save()
+    , 500)
+
+  #######################
+  ##  OPTIONS
+  #######################
+  _prepareOptions: ->
+    options =
+        precision: @precision
+        enableSaveGuides: @enableSaveGuides
+
+    return options
+
+  applyOptions: (optionName)->
+    if optionName == 'general'
+      @setPrecision(document.querySelector('#ruler .options #precision').value)
+      @setEnableSaveGuides(document.querySelector('#ruler .options #save_guides').checked)
+
+    if optionName == 'generator'
+      options =
+        columnCount: document.querySelector('#ruler .generator #column_count').value
+        columnWidth: document.querySelector('#ruler .generator #column_width').value
+        rowCount:    document.querySelector('#ruler .generator #row_count').value
+        rowHeight:   document.querySelector('#ruler .generator #row_height').value
+
+      @generateGuidesWithOptions(options)
+
+    if optionName == 'clear_guides'
+      @clearGuides()
