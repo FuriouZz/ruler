@@ -1,10 +1,7 @@
 # Ruler
 
-Reproduction of Photoshop guides & rules
-
-A future chrome extension
+Reproduction of Photoshop guides & rules in a bookmarklet
 
 ## Todo
 * Clean code
-* See Chrome extension integration
-* Maybe see for Safari/Firefox extensions
+* Prepare Bookmarklet

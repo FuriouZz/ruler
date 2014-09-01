@@ -21,7 +21,7 @@
     </head>
     <body>
 
-        <div class="plouf" style="position:absolute; top: 0px; left: 100px; width: 100px; height: 50px;background-color: blue;">
+        <div class="plouf" style="margin-top:0px; margin-left: 100px; width: 400px; height: 2000px;background-color: pink;">
           HELLO
         </div>
 
@@ -32,11 +32,15 @@
         <!-- endbuild -->
         <!-- build:js(.tmp) scripts/main.js -->
         <script src="scripts/config.js"></script>
+        <script src="scripts/html.js"></script>
+        <script src="scripts/point.js"></script>
+        <script src="scripts/guide.js"></script>
+        <script src="scripts/events.js"></script>
         <script src="scripts/app.js"></script>
         <!-- endbuild -->
 
         <script>
-          var app = new Ruler.App('body');
+          Ruler.app = new Ruler.App('.plouf');
         </script>
 
     </body>
