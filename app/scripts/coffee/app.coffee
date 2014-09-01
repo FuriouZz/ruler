@@ -147,8 +147,9 @@ class Ruler.App
       @el.removeAttribute('data-original-marginTop')
       @el.removeAttribute('data-original-marginLeft')
 
-    @el  = document.querySelector(selector)
-    rect = @el.getBoundingClientRect()
+    @selector = selector
+    @el       = document.querySelector(selector)
+    rect      = @el.getBoundingClientRect()
 
     if selector != 'body'
       left = rect.left
@@ -281,8 +282,10 @@ class Ruler.App
   createSaveData: ->
     saveData =
       options:
+        selector: @selector
         precision: @precision
-        toggleSave: @toggleSave
+        toggle_save: @toggleSave
+        position_fixed: @positionFixed
       data:
         guides: []
 
@@ -323,6 +326,7 @@ class Ruler.App
   #######################
   _prepareOptions: ->
     options =
+        selector: @selector
         precision: @precision
         toggle_save: @toggleSave
         position_fixed: @positionFixed
@@ -330,6 +334,9 @@ class Ruler.App
     return options
 
   _restoreOptions: (options)->
+      @setSelector(options.selector)
+      @ruler.querySelector('#selector').value = @selector
+
       @setPrecision(options.precision)
       @ruler.querySelector('#precision').value = @precision
 
@@ -358,6 +365,8 @@ class Ruler.App
     t = e.target
     t.blur()
 
+    if t.name == 'selector'
+      @setSelector(t.value)
     if t.name == 'precision'
       @setPrecision(t.value)
     if t.name == 'toggle_save'

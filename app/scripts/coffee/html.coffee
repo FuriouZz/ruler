@@ -15,13 +15,17 @@ Ruler.HTML.Panel = """
     <form onsubmit="return false;" action="" class="options">
       <h2>Options</h2>
       <div class="block">
+        <label for="selector">Selector</label>
+        <input type="text" name="selector" id="selector" value="body">
+      </div>
+      <div class="block">
         <label for="precision">Precision</label>
         <input type="text" name="precision" id="precision" value="5">
       </div>
       <div class="block">
-        <label for="toggle_save">Save guides</label>
-        <div id="toggle_save" class="toggle off">
-          <input type="checkbox" name="toggle_save" style="display:none;">
+        <label for="position_fixed">Pos. Fixed</label>
+        <div id="position_fixed" class="toggle">
+          <input type="checkbox" name="position_fixed" style="display:none;">
           <div class="cursor"></div>
           <div class="actions">
             <span class="off">OFF</span>
@@ -31,9 +35,9 @@ Ruler.HTML.Panel = """
         </div>
       </div>
       <div class="block">
-        <label for="position_fixed">Fixed</label>
-        <div id="position_fixed" class="toggle">
-          <input type="checkbox" name="position_fixed" style="display:none;">
+        <label for="toggle_save">Save guides</label>
+        <div id="toggle_save" class="toggle off">
+          <input type="checkbox" name="toggle_save" style="display:none;">
           <div class="cursor"></div>
           <div class="actions">
             <span class="off">OFF</span>
